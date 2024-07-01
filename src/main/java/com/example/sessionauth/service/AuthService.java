@@ -20,7 +20,7 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.context.SecurityContextRepository;
-import org.springframework.session.data.redis.RedisIndexedSessionRepository;
+import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -46,7 +46,7 @@ public class AuthService {
 
     private final AuthenticationManager authManager;
 
-    private final RedisIndexedSessionRepository redisIndexedSessionRepository;
+    private final JdbcIndexedSessionRepository jdbcIndexedSessionRepository;
 
     private final SessionRegistry sessionRegistry;
 
@@ -54,14 +54,14 @@ public class AuthService {
             EmployeeRepo employeeRepository,
             PasswordEncoder passwordEncoder,
             AuthenticationManager authManager,
-            RedisIndexedSessionRepository redisIndexedSessionRepository,
+            JdbcIndexedSessionRepository jdbcIndexedSessionRepository,
             SessionRegistry sessionRegistry,
             SecurityContextRepository securityContextRepository
     ) {
         this.employeeRepository = employeeRepository;
         this.passwordEncoder = passwordEncoder;
         this.authManager = authManager;
-        this.redisIndexedSessionRepository = redisIndexedSessionRepository;
+        this.jdbcIndexedSessionRepository = jdbcIndexedSessionRepository;
         this.sessionRegistry = sessionRegistry;
         this.securityContextRepository = securityContextRepository;
         this.securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
@@ -149,7 +149,7 @@ public class AuthService {
             sessions.stream() //
                     // Gets the oldest session
                     .min(Comparator.comparing(SessionInformation::getLastRequest)) //
-                    .ifPresent(sessionInfo -> this.redisIndexedSessionRepository.deleteById(sessionInfo.getSessionId()));
+                    .ifPresent(sessionInfo -> this.jdbcIndexedSessionRepository.deleteById(sessionInfo.getSessionId()));
         }
     }
 

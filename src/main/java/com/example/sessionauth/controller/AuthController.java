@@ -60,7 +60,7 @@ public class AuthController {
      * @param authentication
      * @return String
      * **/
-    @GetMapping(path = "/authenticated")
+    @GetMapping(path = "/admin")
     @PreAuthorize(value = "hasAuthority('ADMIN')")
     public String getAuthenticated(Authentication authentication) {
         return "Admin name is " + authentication.getName();
@@ -74,7 +74,7 @@ public class AuthController {
     * **/
     @GetMapping(path = "/employee")
     public String onlyEmployeesCanHitThisRoute(Authentication authentication) {
-        return "An Admin or Employee can hit this rout. Employees name is " + authentication.getName();
+        return "An Admin or Employee can hit this route. Employee's name is " + authentication.getName();
     }
 
 }

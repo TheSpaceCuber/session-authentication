@@ -23,7 +23,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
-import org.springframework.session.data.redis.RedisIndexedSessionRepository;
+import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
 import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED;
@@ -34,7 +34,7 @@ public class SecurityConfig {
     @Value(value = "${custom.max.session}")
     private int maxSession;
 
-    private final RedisIndexedSessionRepository redisIndexedSessionRepository;
+    private final JdbcIndexedSessionRepository jdbcIndexedSessionRepository;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -43,12 +43,12 @@ public class SecurityConfig {
     private final UserDetailsService detailsService;
 
     public SecurityConfig(
-            RedisIndexedSessionRepository redisIndexedSessionRepository,
+            JdbcIndexedSessionRepository jdbcIndexedSessionRepository,
             PasswordEncoder passwordEncoder,
             @Qualifier(value = "authEntryPoint") AuthenticationEntryPoint authEntryPoint,
             @Qualifier(value = "detailService") UserDetailsService detailsService
     ) {
-        this.redisIndexedSessionRepository = redisIndexedSessionRepository;
+        this.jdbcIndexedSessionRepository = jdbcIndexedSessionRepository;
         this.passwordEncoder = passwordEncoder;
         this.authEntryPoint = authEntryPoint;
         this.detailsService = detailsService;
@@ -87,7 +87,7 @@ public class SecurityConfig {
                         .logoutUrl("/api/v1/auth/logout")
                         .invalidateHttpSession(true) // Invalidate all sessions after logout
                         .deleteCookies("JSESSIONID")
-                        .addLogoutHandler(new CustomLogoutHandler(this.redisIndexedSessionRepository))
+                        .addLogoutHandler(new CustomLogoutHandler(this.jdbcIndexedSessionRepository))
                         .logoutSuccessHandler((request, response, authentication) ->
                                 SecurityContextHolder.clearContext()
                         )
@@ -101,7 +101,7 @@ public class SecurityConfig {
      * **/
     @Bean
     public SpringSessionBackedSessionRegistry<? extends Session> sessionRegistry() {
-        return new SpringSessionBackedSessionRegistry<>(this.redisIndexedSessionRepository);
+        return new SpringSessionBackedSessionRegistry<>(this.jdbcIndexedSessionRepository);
     }
 
     /** A SecurityContextRepository implementation which stores the security context in the HttpSession between requests. */
