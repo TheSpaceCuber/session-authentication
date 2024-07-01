@@ -6,16 +6,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
-import org.springframework.session.data.redis.RedisIndexedSessionRepository;
+import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
 import org.springframework.stereotype.Component;
 
 @Component(value = "customLogoutHandler")
 public class CustomLogoutHandler implements LogoutHandler {
 
-    private final FindByIndexNameSessionRepository<? extends Session> redisIndexedSessionRepository;
+    private final FindByIndexNameSessionRepository<? extends Session> jdbcIndexedSessionRepository;
 
-    public CustomLogoutHandler(RedisIndexedSessionRepository redisIndexedSessionRepository) {
-        this.redisIndexedSessionRepository = redisIndexedSessionRepository;
+    public CustomLogoutHandler(JdbcIndexedSessionRepository jdbcIndexedSessionRepository) {
+        this.jdbcIndexedSessionRepository = jdbcIndexedSessionRepository;
     }
 
     /**
@@ -29,8 +29,8 @@ public class CustomLogoutHandler implements LogoutHandler {
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         String id = request.getSession(false).getId();
-        if (id != null && this.redisIndexedSessionRepository.findById(id) != null) {
-            this.redisIndexedSessionRepository.deleteById(id);
+        if (id != null && this.jdbcIndexedSessionRepository.findById(id) != null) {
+            this.jdbcIndexedSessionRepository.deleteById(id);
         }
     }
 
